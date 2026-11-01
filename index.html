@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Driving Revenue Engine | Next-Gen AI CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        },
+                        dark: {
+                            bg: '#09090b',
+                            card: '#141417',
+                            border: '#27272a',
+                            hover: '#202024',
+                            muted: '#a1a1aa'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b;
+            color: #f4f4f5;
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141417;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #52525b;
+        }
+        .fade-in {
+            animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col bg-dark-bg text-zinc-100">
+
+    <!-- TOP NAV / GLOBAL BAR -->
+    <header class="h-14 border-b border-dark-border bg-dark-card/90 backdrop-blur-md px-4 flex items-center justify-between z-20 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+            <div>
+                <span class="font-bold text-sm sm:text-base tracking-tight text-white flex items-center gap-2">
+                    Self-Driving CRM
+                    <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/30">v2.4 Active Engine</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- PERSONA SWITCHER DROPDOWN -->
+        <div class="flex items-center gap-2 bg-zinc-900/90 border border-dark-border px-3 py-1.5 rounded-xl shadow-inner">
+            <span class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider hidden sm:inline">Active Persona:</span>
+            <select id="personaSelector" onchange="switchPersona(this.value)" class="bg-transparent text-xs font-semibold text-brand-400 focus:outline-none cursor-pointer py-0.5 pr-2">
+                <option value="ae" class="bg-zinc-900 text-zinc-200">Account Executive (AE)</option>
+                <option value="cro" class="bg-zinc-900 text-zinc-200">Chief Revenue Officer (CRO)</option>
+                <option value="revops" class="bg-zinc-900 text-zinc-200">RevOps Leader</option>
+            </select>
+        </div>
+
+        <!-- Global Telemetry Status -->
+        <div class="hidden lg:flex items-center gap-6 text-xs text-zinc-400">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900/60 border border-dark-border">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span class="font-medium text-zinc-200">Zero-Touch Capture Active</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Admin Reclaimed: <strong class="text-white font-semibold" id="timeSavedCounter">21.8 hrs/rep/wk</strong></span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div id="userPersonaBadge" class="h-8 px-3 rounded-lg bg-indigo-950/60 border border-brand-500/40 flex items-center justify-center text-xs font-semibold text-brand-300">
+                AE Execution Mode
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY CONTAINER -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="w-60 border-r border-dark-border bg-dark-card flex flex-col justify-between shrink-0 z-10">
+            <div class="p-3 space-y-5">
+                <!-- Org Context Card -->
+                <div class="p-2.5 rounded-lg bg-zinc-900/90 border border-dark-border flex items-center justify-between">
+                    <div class="flex items-center gap-2.5 overflow-hidden">
+                        <div class="w-7 h-7 rounded-lg bg-brand-600/20 border border-brand-500/30 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0">
+                            A
+                        </div>
+                        <div class="truncate">
+                            <p class="text-xs font-semibold text-zinc-200 truncate">Acme Tech Systems</p>
+                            <p class="text-[10px] text-zinc-400 truncate" id="sidebarRoleLabel">AE Workspace • 32 Reps</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nav Buttons -->
+                <nav class="space-y-1" id="dynamicSidebarNav"></nav>
+            </div>
+
+            <!-- Health Indicator Footer -->
+            <div class="p-3 border-t border-dark-border bg-zinc-950/50">
+                <div class="p-3 rounded-lg bg-zinc-900/60 border border-dark-border space-y-2">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-zinc-400 font-medium">Model Sync Latency</span>
+                        <span class="text-emerald-400 font-mono font-semibold">142ms</span>
+                    </div>
+                    <div class="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+                        <div class="bg-emerald-500 h-1.5 rounded-full w-[94%]"></div>
+                    </div>
+                    <p class="text-[10px] text-zinc-500">Autonomous CRM Sync Engine 100% Operational</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN EXECUTION CANVAS -->
+        <main class="flex-1 flex flex-col bg-dark-bg overflow-y-auto" id="mainCanvas"></main>
+
+        <!-- RIGHT CONTEXTUAL INTELLIGENCE PANEL -->
+        <aside class="w-80 border-l border-dark-border bg-dark-card flex flex-col justify-between shrink-0 hidden xl:flex" id="rightContextPanel"></aside>
+
+    </div>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        let currentPersona = 'ae';
+        let currentModule = 'actionQueue';
+        let aePendingTasks = [
+            { 
+                id: 'card-1', 
+                account: 'Acme Corp ($180k ACV)', 
+                title: 'Champion Silent • Exec Escalation', 
+                desc: 'Marcus Vance (VP Eng) missed key evaluation sync. Competitor pricing page traffic detected.', 
+                actionType: 'Exec Escalation (CRO Peer Email + Slack Alert)',
+                channel: 'Email + Slack Alert',
+                draft: 'Marcus — standardizing on compliance automation usually comes down to developer bandwidth saved. Can I share our benchmark report?', 
+                type: 'rose',
+                stageUpdate: 'Stage: Discovery ➔ Executive Alignment',
+                crmMutations: ['Logs CRO Outreach Activity', 'Notifies Sales Channel #deal-acme-corp', 'Sets Follow-up to 48 Hours'],
+                transcriptSnippet: '"We are struggling to get buy-in from security, and engineering bandwidth is pulled into Q3 launch..." — Marcus V. (Call on Oct 14)'
+            },
+            { 
+                id: 'card-2', 
+                account: 'Horizon Cloud ($240k ACV)', 
+                title: 'InfoSec Block • Stage Mutation', 
+                desc: 'InfoSec team requested ISO-27001 SOC2 Type II mapping document for Q4 signoff.', 
+                actionType: 'Dispatch ISO Package & Mutate CRM Stage',
+                channel: 'Internal SE Task & CRM Mutation',
+                draft: 'Hi Sarah — attaching our updated SOC2 Type II audit report along with the completed vendor questionnaire for Horizon.', 
+                type: 'amber',
+                stageUpdate: 'Stage: Evaluation ➔ Security & Legal Review',
+                crmMutations: ['Assigns SE Jira Sub-Task', 'Attaches ISO-27001 Mapping Package', 'Updates Probability to 85%'],
+                transcriptSnippet: '"If we don\'t have the SOC2 Type II mapped by Friday, security will push the deal to next fiscal quarter."'
+            },
+            { 
+                id: 'card-3', 
+                account: 'Nexus Tech ($120k ACV)', 
+                title: 'Post-Demo • Technical Workshop', 
+                desc: 'Demo completed 2 hours ago. AI auto-extracted 3 key action items and decision timeline.', 
+                actionType: 'Auto-Schedule Technical Workshop (AE + SE Slots)',
+                channel: 'Calendar Multi-Party Invite',
+                draft: 'David — thanks for the time today. I have reserved 3 slots for our technical alignment deep dive with our lead SE.', 
+                type: 'indigo',
+                stageUpdate: 'Stage: Demo Complete ➔ Tech Alignment Scheduled',
+                crmMutations: ['Sends Calendar Invite (Thu 2pm / Fri 10am)', 'Logs Auto-Extracted Meeting Notes', 'Tags Solutions Engineer'],
+                transcriptSnippet: '"The core feature looks solid, but we need our lead architect to verify the API webhook latency requirements."'
+            },
+            {
+                id: 'card-4',
+                account: 'Vortex Systems ($95k ACV)',
+                title: 'Dark Intent Signal • Multi-Channel Drop',
+                desc: 'Procurement team viewed terms page 4x in 24 hrs. Email response rate dropping.',
+                actionType: 'LinkedIn InMail / WhatsApp Drop & Risk Rescore',
+                channel: 'LinkedIn / WhatsApp Direct',
+                draft: 'Hey Alex, noticed your team is reviewing the enterprise terms. Happy to hop on a 5-min call to address any compliance questions directly.',
+                type: 'emerald',
+                stageUpdate: 'Stage: Negotiation ➔ Contracting Fast-Track',
+                crmMutations: ['Logs Out-of-Band Intent Score', 'Sends InMail via LinkedIn Integration', 'Flags High Buyer Velocity'],
+                transcriptSnippet: '"We want to move fast on contracting if we can resolve the custom SLA terms this week."'
+            }
+        ];
+
+        let activeDrawerTask = null;
+
+        const modulesConfig = {
+            actionQueue: { id: 'actionQueue', label: 'Action Queue', badge: true, icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4' },
+            pipeline: { id: 'pipeline', label: 'Pipeline Graph', dot: 'bg-emerald-500', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+            accounts: { id: 'accounts', label: 'Account Graphs', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
+            telemetry: { id: 'telemetry', label: 'Telemetry', tag: 'ARR Diagnostics', icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' },
+            settings: { id: 'settings', label: 'Settings', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' }
+        };
+
+        const personaProfiles = {
+            ae: {
+                badge: 'AE Execution Mode',
+                label: 'AE Workspace • 32 Reps',
+                defaultModule: 'actionQueue',
+                modules: ['actionQueue', 'pipeline', 'accounts']
+            },
+            cro: {
+                badge: 'CRO Command Center',
+                label: 'Executive RevOps',
+                defaultModule: 'pipeline',
+                modules: ['pipeline', 'telemetry', 'accounts']
+            },
+            revops: {
+                badge: 'RevOps System Control',
+                label: 'Schema & Ingestion Infra',
+                defaultModule: 'settings',
+                modules: ['telemetry', 'settings', 'accounts']
+            }
+        };
+
+        function switchPersona(personaKey) {
+            currentPersona = personaKey;
+            currentModule = personaProfiles[personaKey].defaultModule;
+            
+            document.getElementById('userPersonaBadge').innerText = personaProfiles[personaKey].badge;
+            document.getElementById('sidebarRoleLabel').innerText = personaProfiles[personaKey].label;
+
+            renderSidebar();
+            renderMainCanvas();
+            renderRightContext();
+        }
+
+        function switchTab(modId) {
+            currentModule = modId;
+            renderSidebar();
+            renderMainCanvas();
+            renderRightContext();
+        }
+
+        function renderSidebar() {
+            const nav = document.getElementById('dynamicSidebarNav');
+            const allowed = personaProfiles[currentPersona].modules;
+
+            nav.innerHTML = `
+                <p class="px-3 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Modules</p>
+                ${allowed.map(modId => {
+                    const mod = modulesConfig[modId];
+                    const isActive = modId === currentModule;
+                    return `
+                        <button onclick="switchTab('${mod.id}')" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${isActive ? 'bg-brand-500/10 text-brand-400 border border-brand-500/30 font-semibold' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'}">
+                            <div class="flex items-center gap-2.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${mod.icon}"/></svg>
+                                <span>${mod.label}</span>
+                            </div>
+                            ${mod.badge && aePendingTasks.length > 0 ? `<span class="bg-brand-600 text-white px-1.5 py-0.2 rounded-full text-[10px] font-bold">${aePendingTasks.length}</span>` : ''}
+                            ${mod.dot && !mod.badge ? `<span class="w-2 h-2 rounded-full ${mod.dot}"></span>` : ''}
+                            ${mod.tag ? `<span class="text-[9px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded font-mono">${mod.tag}</span>` : ''}
+                        </button>
+                    `;
+                }).join('')}
+            `;
+        }
+
+        function renderMainCanvas() {
+            const canvas = document.getElementById('mainCanvas');
+
+            if (currentModule === 'actionQueue') {
+                canvas.innerHTML = `
+                    <div class="p-6 space-y-6 fade-in max-w-5xl">
+                        <div class="flex items-center justify-between pb-4 border-b border-dark-border">
+                            <div>
+                                <h1 class="text-xl font-bold text-white flex items-center gap-2.5">
+                                    Autonomous Action Queue
+                                    <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-mono">Zero Manual Input</span>
+                                </h1>
+                                <p class="text-xs text-zinc-400 mt-1">Engine predicted the Next-Best Action across multi-channel vectors.</p>
+                            </div>
+                        </div>
+
+                        ${aePendingTasks.length === 0 ? `
+                            <div class="p-12 text-center rounded-xl bg-dark-card border border-dark-border">
+                                <div class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                                <h3 class="text-base font-bold text-white">Queue Empty! All Actions Cleared</h3>
+                                <p class="text-xs text-zinc-400 mt-1">Autonomous sync engine will generate new cards as interactions occur.</p>
+                            </div>
+                        ` : `
+                            <div class="space-y-4">
+                                ${aePendingTasks.map(task => `
+                                    <div class="p-5 rounded-xl bg-dark-card border border-dark-border space-y-3 shadow-lg relative overflow-hidden transition-all hover:border-brand-500/50">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wider bg-brand-500/10 text-brand-400 border border-brand-500/20 font-mono">${task.title}</span>
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-800 text-zinc-300 border border-dark-border flex items-center gap-1">
+                                                    <svg class="w-3 h-3 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                                    Channel: ${task.channel}
+                                                </span>
+                                            </div>
+                                            <h3 class="text-xs font-bold text-zinc-300 font-mono">${task.account}</h3>
+                                        </div>
+
+                                        <p class="text-xs text-zinc-300">${task.desc}</p>
+                                        
+                                        <div class="p-3 rounded-lg bg-zinc-950 border border-dark-border space-y-1.5">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-brand-400 font-semibold text-xs font-mono">⚡ NEXT-BEST ACTION PREDICTED: ${task.actionType}</span>
+                                                <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">${task.stageUpdate}</span>
+                                            </div>
+                                            <p class="text-xs text-zinc-300 font-mono italic">"${task.draft}"</p>
+                                        </div>
+
+                                        <div class="flex items-center justify-between pt-1">
+                                            <div class="flex items-center gap-2">
+                                                <button onclick="executeTask('${task.id}')" class="px-3.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-md transition-all flex items-center gap-1.5">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                                    Approve & Execute Task
+                                                </button>
+                                                <button onclick="openDrawer('${task.id}')" class="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-dark-border flex items-center gap-1.5">
+                                                    <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                    Inspect & Modify
+                                                </button>
+                                                <button onclick="executeTask('${task.id}')" class="px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xs">Snooze</button>
+                                            </div>
+                                            <span class="text-[10px] text-zinc-500 font-mono">Zero Manual CRM Entry</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `}
+                    </div>
+
+                    <!-- DETAILED CARD INSPECTION DRAWER OVERLAY -->
+                    <div id="drawerOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity" onclick="closeDrawer()"></div>
+                    
+                    <div id="cardDrawer" class="fixed top-0 right-0 h-full w-[480px] sm:w-[540px] bg-dark-card border-l border-dark-border z-50 transform translate-x-full transition-transform duration-300 ease-in-out p-6 flex flex-col justify-between overflow-y-auto">
+                        <div id="drawerContent" class="space-y-6"></div>
+                    </div>
+                `;
+            } else if (currentModule === 'pipeline') {
+                canvas.innerHTML = `
+                    <div class="p-6 space-y-6 fade-in">
+                        <div class="flex items-center justify-between pb-4 border-b border-dark-border">
+                            <div>
+                                <h1 class="text-xl font-bold text-white">Pipeline Execution Graph</h1>
+                                <p class="text-xs text-zinc-400 mt-0.5">Deals enriched with real-time intent telemetry and AI health scores.</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <span class="px-3 py-1 rounded-lg bg-zinc-900 border border-dark-border text-xs text-zinc-300">Total Active: <strong class="text-white">$4.2M ACV</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 rounded-xl bg-dark-card border border-dark-border space-y-3">
+                                <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider flex justify-between">Stage: Technical Evaluation <span class="text-brand-400">3 Deals</span></h3>
+                                <div class="p-3 rounded-lg bg-zinc-900 border border-emerald-500/30 space-y-1">
+                                    <div class="flex justify-between text-xs font-bold text-white"><span>TechFlow Inc</span><span>$140k ACV</span></div>
+                                    <div class="flex justify-between text-[10px] text-zinc-400 font-mono"><span>Closing Probability</span><span class="text-emerald-400">92% (High)</span></div>
+                                </div>
+                                <div class="p-3 rounded-lg bg-zinc-900 border border-dark-border space-y-1">
+                                    <div class="flex justify-between text-xs font-bold text-white"><span>Vortex AI</span><span>$95k ACV</span></div>
+                                    <div class="flex justify-between text-[10px] text-zinc-400 font-mono"><span>Closing Probability</span><span class="text-zinc-300">74% (Medium)</span></div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-dark-card border border-dark-border space-y-3">
+                                <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider flex justify-between">Stage: Procurement & Legal <span class="text-brand-400">2 Deals</span></h3>
+                                <div class="p-3 rounded-lg bg-zinc-900 border border-rose-500/30 space-y-1">
+                                    <div class="flex justify-between text-xs font-bold text-white"><span>Acme Corp</span><span>$180k ACV</span></div>
+                                    <div class="flex justify-between text-[10px] text-zinc-400 font-mono"><span>Risk Factor</span><span class="text-rose-400">Champion Silent</span></div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-dark-card border border-dark-border space-y-3">
+                                <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider flex justify-between">Stage: Final Executive Signoff <span class="text-brand-400">1 Deal</span></h3>
+                                <div class="p-3 rounded-lg bg-zinc-900 border border-emerald-500/30 space-y-1">
+                                    <div class="flex justify-between text-xs font-bold text-white"><span>Global Cloud Corp</span><span>$310k ACV</span></div>
+                                    <div class="flex justify-between text-[10px] text-zinc-400 font-mono"><span>Commit Status</span><span class="text-emerald-400">AI Commit Verified</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentModule === 'accounts') {
+                canvas.innerHTML = `
+                    <div class="p-6 space-y-6 fade-in">
+                        <div class="flex items-center justify-between pb-4 border-b border-dark-border">
+                            <div>
+                                <h1 class="text-xl font-bold text-white">Account Stakeholder Graph</h1>
+                                <p class="text-xs text-zinc-400 mt-0.5">Automated organizational graph mapped from email metadata, calls, and calendar invites.</p>
+                            </div>
+                        </div>
+                        <div class="p-6 rounded-xl bg-dark-card border border-dark-border space-y-6">
+                            <h3 class="text-sm font-bold text-white">Acme Corp — Buying Committee Org Map</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="p-3 rounded-lg bg-zinc-900 border border-emerald-500/40">
+                                    <span class="text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">Economic Buyer</span>
+                                    <h4 class="text-xs font-bold text-white mt-2">Elena Rostova</h4>
+                                    <p class="text-[11px] text-zinc-400">Chief Information Officer</p>
+                                    <p class="text-[10px] text-emerald-400 mt-2 font-mono">Positive Sentiment • High Engagement</p>
+                                </div>
+                                <div class="p-3 rounded-lg bg-zinc-900 border border-rose-500/40">
+                                    <span class="text-[10px] font-mono font-bold bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded">Technical Champion</span>
+                                    <h4 class="text-xs font-bold text-white mt-2">Marcus Vance</h4>
+                                    <p class="text-[11px] text-zinc-400">VP Software Engineering</p>
+                                    <p class="text-[10px] text-rose-400 mt-2 font-mono">Warning: No touchpoint in 9 days</p>
+                                </div>
+                                <div class="p-3 rounded-lg bg-zinc-900 border border-zinc-700">
+                                    <span class="text-[10px] font-mono font-bold bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded">Procurement Lead</span>
+                                    <h4 class="text-xs font-bold text-white mt-2">David Zhang</h4>
+                                    <p class="text-[11px] text-zinc-400">Director of Procurement</p>
+                                    <p class="text-[10px] text-zinc-400 mt-2 font-mono">Standard Redlines Submitted</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentModule === 'telemetry') {
+                canvas.innerHTML = `
+                    <div class="p-6 space-y-6 fade-in">
+                        <div class="flex items-center justify-between pb-4 border-b border-dark-border">
+                            <div>
+                                <h1 class="text-xl font-bold text-white">CRO Revenue Telemetry & ARR Diagnostics</h1>
+                                <p class="text-xs text-zinc-400 mt-0.5">Objective forecasting calculated from automated deal engagement rather than rep intuition.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="p-4 rounded-xl bg-dark-card border border-dark-border">
+                                <p class="text-xs text-zinc-400">AI Q3 ARR Forecast</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">$3.42M</h3>
+                                <p class="text-[10px] text-emerald-400 mt-1 font-mono">96.4% Model Confidence</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-dark-card border border-dark-border">
+                                <p class="text-xs text-zinc-400">Manual Rep Commit</p>
+                                <h3 class="text-2xl font-bold text-zinc-400 mt-1">$3.90M</h3>
+                                <p class="text-[10px] text-rose-400 mt-1 font-mono">-$480k Variance Risk Detected</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-dark-card border border-dark-border">
+                                <p class="text-xs text-zinc-400">Avg Deal Cycle Velocity</p>
+                                <h3 class="text-2xl font-bold text-brand-400 mt-1">28 Days</h3>
+                                <p class="text-[10px] text-emerald-400 mt-1 font-mono">-14 Days vs Legacy CRM</p>
+                            </div>
+                            <div class="p-4 rounded-xl bg-dark-card border border-dark-border">
+                                <p class="text-xs text-zinc-400">Annual Stack TCO Cut</p>
+                                <h3 class="text-2xl font-bold text-emerald-400 mt-1">$142k</h3>
+                                <p class="text-[10px] text-zinc-400 mt-1 font-mono">Zero Manual Ingestion</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentModule === 'settings') {
+                canvas.innerHTML = `
+                    <div class="p-6 space-y-6 fade-in">
+                        <div class="flex items-center justify-between pb-4 border-b border-dark-border">
+                            <div>
+                                <h1 class="text-xl font-bold text-white">RevOps Engine Settings & LLM Ingestion</h1>
+                                <p class="text-xs text-zinc-400 mt-0.5">Configure background zero-touch data capture, LLM prompts, and CRM schema sync.</p>
+                            </div>
+                        </div>
+                        <div class="p-5 rounded-xl bg-dark-card border border-dark-border space-y-4">
+                            <h3 class="text-sm font-bold text-white">LLM Provider & Model Routing</h3>
+                            <div class="grid grid-cols-2 gap-4 text-xs">
+                                <div class="p-3 rounded-lg bg-zinc-900 border border-dark-border">
+                                    <p class="font-bold text-white">Primary Reasoning LLM</p>
+                                    <p class="text-zinc-400 text-[11px] mt-1">Claude 3.5 Sonnet / GPT-4o Mix</p>
+                                </div>
+                                <div class="p-3 rounded-lg bg-zinc-900 border border-dark-border">
+                                    <p class="font-bold text-white">Zero-Touch Ingestion Frequency</p>
+                                    <p class="text-emerald-400 text-[11px] mt-1">Real-Time Webhooks (Active)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderRightContext() {
+            const panel = document.getElementById('rightContextPanel');
+            panel.innerHTML = `
+                <div class="p-4 border-b border-dark-border flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">AI Context & Intent</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                </div>
+                <div class="p-4 space-y-5 text-xs">
+                    <div class="p-3 rounded-lg bg-zinc-900 border border-dark-border space-y-2">
+                        <span class="text-[10px] text-zinc-400 font-mono">Active Deal Intelligence</span>
+                        <h4 class="font-bold text-white text-sm">Acme Corp Evaluation</h4>
+                        <div class="flex justify-between items-center text-[11px] pt-1 border-t border-zinc-800">
+                            <span class="text-zinc-400">Deal Health Score:</span>
+                            <span class="text-rose-400 font-mono font-semibold">42 / 100 (At Risk)</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <span class="text-[10px] text-zinc-400 uppercase tracking-wider font-mono">Detected Intent Signals</span>
+                        <div class="space-y-2">
+                            <div class="p-2.5 rounded bg-zinc-900 border border-dark-border space-y-1">
+                                <p class="text-zinc-300 font-semibold">Pricing Page Activity</p>
+                                <p class="text-[10px] text-zinc-400">3 visits from Acme IP address in last 24 hrs.</p>
+                            </div>
+                            <div class="p-2.5 rounded bg-zinc-900 border border-dark-border space-y-1">
+                                <p class="text-zinc-300 font-semibold">Competitor Keyword Mention</p>
+                                <p class="text-[10px] text-zinc-400 font-mono">"Salesforce Data Cloud vs Nexus"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 border-t border-dark-border bg-zinc-950/40 text-[10px] text-zinc-500 font-mono text-center">
+                    AI Context Panel • Real-time Stream
+                </div>
+            `;
+        }
+
+        function openDrawer(taskId) {
+            const task = aePendingTasks.find(t => t.id === taskId);
+            if (!task) return;
+            activeDrawerTask = task;
+
+            const drawerContent = document.getElementById('drawerContent');
+            drawerContent.innerHTML = `
+                <div class="flex items-center justify-between pb-4 border-b border-dark-border">
+                    <div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-500/20 text-brand-400 border border-brand-500/30">${task.title}</span>
+                        <h2 class="text-lg font-bold text-white mt-1">${task.account}</h2>
+                    </div>
+                    <button onclick="closeDrawer()" class="text-zinc-400 hover:text-white p-1 rounded-lg bg-zinc-900 border border-dark-border">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+
+                <!-- AI REASONING & CALL AUDIT -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">AI Intent Audit & Call Snippet</h4>
+                    <div class="p-3.5 rounded-xl bg-zinc-950 border border-dark-border space-y-2">
+                        <p class="text-xs text-zinc-300 font-mono italic font-medium">${task.transcriptSnippet}</p>
+                        <div class="flex items-center justify-between text-[10px] text-zinc-500 border-t border-zinc-800 pt-2 font-mono">
+                            <span>Signal Source: Gong Call / Intent Webhook</span>
+                            <span class="text-brand-400">Confidence: 96.8%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAYLOAD & ARTIFACT EDIT -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Action Payload & Channel Body</h4>
+                        <span class="text-[10px] text-brand-400 font-mono">Channel: ${task.channel}</span>
+                    </div>
+                    <div class="space-y-2">
+                        <textarea id="drawerDraftText" rows="4" class="w-full p-3 rounded-xl bg-zinc-950 border border-dark-border text-xs text-zinc-200 font-mono focus:outline-none focus:border-brand-500">${task.draft}</textarea>
+                        <div class="flex gap-2">
+                            <button onclick="showToast('Prompt re-engineered with custom parameters')" class="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-300">Re-generate with AI</button>
+                            <button onclick="showToast('Attachment mapped')" class="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-300">Attach Document</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP-BY-STEP CRM MUTATION PREVIEW -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Automated CRM Mutations On Execution</h4>
+                    <div class="p-3.5 rounded-xl bg-zinc-950 border border-dark-border space-y-2">
+                        <div class="flex items-center justify-between text-xs font-mono font-semibold text-emerald-400 pb-2 border-b border-zinc-800">
+                            <span>Target Stage Update:</span>
+                            <span>${task.stageUpdate}</span>
+                        </div>
+                        <ul class="space-y-1.5 pt-1">
+                            ${task.crmMutations.map(m => `
+                                <li class="text-xs text-zinc-300 flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    <span>${m}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- EXECUTION BUTTONS -->
+                <div class="pt-4 border-t border-dark-border flex items-center justify-between gap-3">
+                    <button onclick="executeTask('${task.id}'); closeDrawer();" class="flex-1 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-lg transition-all flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        Approve & Execute All Steps
+                    </button>
+                    <button onclick="closeDrawer()" class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold">Cancel</button>
+                </div>
+            `;
+
+            document.getElementById('drawerOverlay').classList.remove('hidden');
+            document.getElementById('cardDrawer').classList.remove('translate-x-full');
+        }
+
+        function closeDrawer() {
+            document.getElementById('drawerOverlay').classList.add('hidden');
+            document.getElementById('cardDrawer').classList.add('translate-x-full');
+            activeDrawerTask = null;
+        }
+
+        function executeTask(taskId) {
+            aePendingTasks = aePendingTasks.filter(t => t.id !== taskId);
+            showToast('Task Executed & Auto-Logged to CRM');
+            renderSidebar();
+            renderMainCanvas();
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 bg-brand-600 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-xl z-50 flex items-center gap-2 fade-in';
+            toast.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> ${msg}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        window.onload = function() {
+            switchPersona('ae');
+        }
+    </script>
+</body>
+</html>
